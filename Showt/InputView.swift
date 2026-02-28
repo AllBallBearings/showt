@@ -64,6 +64,8 @@ struct InputView: View {
     }
 }
 
-#Preview {
-    InputView(showDisplayView: .constant(false), displayText: .constant(""))
+struct InputView_Previews: PreviewProvider {
+    static var previews: some View {
+        InputView(showDisplayView: .constant(false), displayText: .constant(""))
+    }
 }

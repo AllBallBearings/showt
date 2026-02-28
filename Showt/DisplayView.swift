@@ -262,6 +262,8 @@ struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-#Preview {
-    DisplayView(text: "HELLO", showDisplayView: .constant(true))
+struct DisplayView_Previews: PreviewProvider {
+    static var previews: some View {
+        DisplayView(text: "HELLO", showDisplayView: .constant(true))
+    }
 }
