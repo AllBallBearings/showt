@@ -37,7 +37,9 @@ class MotionManager: ObservableObject {
     private let motionManager = CMMotionManager()
     private let stillnessThreshold: Double = 0.02
     private let stillnessDuration: TimeInterval = 1.0
-    private let tiltSmoothing: Double = 0.18
+    private let baseTiltSmoothing: Double = 0.16
+    private let fastTiltSmoothing: Double = 0.52
+    private let velocityForFastResponse: Double = 0.020
     private let maxPosition: Double = 500.0
     private let speedSmoothing: Double = 0.2
     private let maxSpeedForNormalization: Double = 0.12
@@ -50,12 +52,14 @@ class MotionManager: ObservableObject {
     @Published var sweepPhase: Double = 0.5
     @Published var isRecording: Bool = false
     @Published var tiltPosition: Double = 0.0  // filteredTilt exposed for direct mapping
+    @Published var tiltVelocity: Double = 0.0  // filtered tilt delta per frame
 
     private var lastStillTime: Date?
     private var centerTilt: Double?
     private var filteredTilt: Double = 0.0
     private var filteredSpeed: Double = 0.0
     private var lastFilteredTilt: Double?
+    private var lastRelativeTiltForSmoothing: Double?
     private var filteredTiltVelocity: Double = 0.0
 
     // Recording state
@@ -127,8 +131,10 @@ class MotionManager: ObservableObject {
         centerTilt = nil
         filteredTilt = 0.0
         tiltPosition = 0.0
+        tiltVelocity = 0.0
         filteredSpeed = 0.0
         lastFilteredTilt = nil
+        lastRelativeTiltForSmoothing = nil
         filteredTiltVelocity = 0.0
     }
     
@@ -141,6 +147,18 @@ class MotionManager: ObservableObject {
         let relativeTilt = rawTilt - centerTilt
         lastRawTilt = rawTilt
         lastRelativeTilt = relativeTilt
+
+        // Reduce filter lag when swing speed increases so letter timing stays aligned.
+        let relativeTiltVelocity: Double
+        if let lastRelativeTiltForSmoothing {
+            relativeTiltVelocity = relativeTilt - lastRelativeTiltForSmoothing
+        } else {
+            relativeTiltVelocity = 0.0
+        }
+        lastRelativeTiltForSmoothing = relativeTilt
+        let velocityNorm = min(1.0, abs(relativeTiltVelocity) / velocityForFastResponse)
+        let tiltSmoothing = baseTiltSmoothing + (fastTiltSmoothing - baseTiltSmoothing) * velocityNorm
+
         filteredTilt = filteredTilt + (relativeTilt - filteredTilt) * tiltSmoothing
         tiltPosition = filteredTilt
 
@@ -158,8 +176,11 @@ class MotionManager: ObservableObject {
                 sweepPhase = 0.0
                 filteredTiltVelocity *= -0.3
             }
+        } else {
+            filteredTiltVelocity = 0.0
         }
 
+        tiltVelocity = filteredTiltVelocity
         lastFilteredTilt = filteredTilt
         currentPosition = (sweepPhase - 0.5) * (maxPosition * 2.0)
     }

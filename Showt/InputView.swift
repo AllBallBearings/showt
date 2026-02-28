@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct InputView: View {
+    private let maxInputCharacters: Int = 24
     @State private var inputText: String = ""
     @Binding var showDisplayView: Bool
     @Binding var displayText: String
@@ -18,7 +19,7 @@ struct InputView: View {
                     .foregroundColor(.white)
                 
                 VStack(spacing: 20) {
-                    TextField("Enter text (max 5 chars)", text: $inputText)
+                    TextField("Enter word or name", text: $inputText)
                         .font(.system(size: 24, weight: .medium, design: .monospaced))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
@@ -26,8 +27,8 @@ struct InputView: View {
                         .autocapitalization(.allCharacters)
                         .disableAutocorrection(true)
                         .onChange(of: inputText) { newValue in
-                            // Enforce 5 character limit and uppercase
-                            let filtered = String(newValue.uppercased().prefix(5))
+                            // Enforce character limit and uppercase for readability.
+                            let filtered = String(newValue.uppercased().prefix(maxInputCharacters))
                             if filtered != newValue {
                                 inputText = filtered
                             }
@@ -60,6 +61,11 @@ struct InputView: View {
                 Spacer()
             }
             .padding(.horizontal, 30)
+        }
+        .onAppear {
+            if inputText.isEmpty {
+                inputText = displayText
+            }
         }
     }
 }
