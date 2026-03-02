@@ -24,23 +24,24 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C11C03A42F52877400755AB3 /* Showt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Showt.xcodeproj; sourceTree = "<group>"; };
 		C168BC952E2EF5950008A098 /* Showt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Showt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C168BCA52E2EF5980008A098 /* ShowtTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShowtTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C168BCAF2E2EF5980008A098 /* ShowtUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShowtUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C168BC972E2EF5950008A098 /* Showt */ = {
+		C168BC972E2EF5950008A098 /*  */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "";
+			name = "";
 			sourceTree = "<group>";
 		};
-		C168BCA82E2EF5980008A098 /* ShowtTests */ = {
+		C168BCA82E2EF5980008A098 /* ../ShowtTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ../ShowtTests;
 			sourceTree = "<group>";
 		};
-		C168BCB22E2EF5980008A098 /* ShowtUITests */ = {
+		C168BCB22E2EF5980008A098 /* ../ShowtUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ../ShowtUITests;
 			sourceTree = "<group>";
@@ -72,12 +73,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C11C03A62F52877400755AB3 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
 		C168BC8C2E2EF5950008A098 = {
 			isa = PBXGroup;
 			children = (
-				C168BC972E2EF5950008A098 /* Showt */,
-				C168BCA82E2EF5980008A098 /* ShowtTests */,
-				C168BCB22E2EF5980008A098 /* ShowtUITests */,
+				C168BC972E2EF5950008A098 /*  */,
+				C168BCA82E2EF5980008A098 /* ../ShowtTests */,
+				C168BCB22E2EF5980008A098 /* ../ShowtUITests */,
 				C168BC962E2EF5950008A098 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,7 +114,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				C168BC972E2EF5950008A098 /* Showt */,
+				C168BC972E2EF5950008A098 /*  */,
 			);
 			name = Showt;
 			packageProductDependencies = (
@@ -131,7 +137,7 @@
 				C168BCA72E2EF5980008A098 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				C168BCA82E2EF5980008A098 /* ShowtTests */,
+				C168BCA82E2EF5980008A098 /* ../ShowtTests */,
 			);
 			name = ShowtTests;
 			packageProductDependencies = (
@@ -154,7 +160,7 @@
 				C168BCB12E2EF5980008A098 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				C168BCB22E2EF5980008A098 /* ShowtUITests */,
+				C168BCB22E2EF5980008A098 /* ../ShowtUITests */,
 			);
 			name = ShowtUITests;
 			packageProductDependencies = (
@@ -198,6 +204,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C168BC962E2EF5950008A098 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = C11C03A62F52877400755AB3 /* Products */;
+					ProjectRef = C11C03A42F52877400755AB3 /* Showt.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				C168BC942E2EF5950008A098 /* Showt */,
