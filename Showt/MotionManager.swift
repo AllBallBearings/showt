@@ -53,6 +53,8 @@ class MotionManager: ObservableObject {
     @Published var isRecording: Bool = false
     @Published var tiltPosition: Double = 0.0  // filteredTilt exposed for direct mapping
     @Published var tiltVelocity: Double = 0.0  // filtered tilt delta per frame
+    @Published var verticalTiltPosition: Double = 0.0
+    @Published var verticalTiltVelocity: Double = 0.0
 
     private var lastStillTime: Date?
     private var centerTilt: Double?
@@ -61,6 +63,10 @@ class MotionManager: ObservableObject {
     private var lastFilteredTilt: Double?
     private var lastRelativeTiltForSmoothing: Double?
     private var filteredTiltVelocity: Double = 0.0
+    private var filteredVerticalTilt: Double = 0.0
+    private var filteredVerticalTiltVelocity: Double = 0.0
+    private var lastFilteredVerticalTilt: Double?
+    private var centerVerticalTilt: Double?
 
     // Recording state
     private var recordingStartTime: TimeInterval?
@@ -104,6 +110,9 @@ class MotionManager: ObservableObject {
         motionManager.startDeviceMotionUpdates(to: .main) { [weak self] deviceMotion, error in
             guard let self = self, let motion = deviceMotion else { return }
             self.updatePosition(withTilt: motion.gravity.x)
+            // Negate gravity.z: forward tilt (phone facing ground) gives negative z,
+            // but we want positive = looking down so the sign exits at the top.
+            self.updateVerticalTilt(withRaw: -motion.gravity.z)
             self.checkStillness(userAcceleration: motion.userAcceleration)
             if self.isRecording {
                 self.recordSample(motion: motion)
@@ -136,6 +145,12 @@ class MotionManager: ObservableObject {
         lastFilteredTilt = nil
         lastRelativeTiltForSmoothing = nil
         filteredTiltVelocity = 0.0
+        verticalTiltPosition = 0.0
+        verticalTiltVelocity = 0.0
+        filteredVerticalTilt = 0.0
+        filteredVerticalTiltVelocity = 0.0
+        lastFilteredVerticalTilt = nil
+        centerVerticalTilt = nil
     }
     
     private func updatePosition(withTilt rawTilt: Double) {
@@ -185,6 +200,24 @@ class MotionManager: ObservableObject {
         currentPosition = (sweepPhase - 0.5) * (maxPosition * 2.0)
     }
     
+    private func updateVerticalTilt(withRaw rawVTilt: Double) {
+        if centerVerticalTilt == nil {
+            centerVerticalTilt = rawVTilt
+        }
+        guard let centerVerticalTilt else { return }
+        let relativeVTilt = rawVTilt - centerVerticalTilt
+        filteredVerticalTilt = filteredVerticalTilt + (relativeVTilt - filteredVerticalTilt) * baseTiltSmoothing
+        verticalTiltPosition = filteredVerticalTilt
+        if let lastFilteredVerticalTilt {
+            let rawVelocity = filteredVerticalTilt - lastFilteredVerticalTilt
+            filteredVerticalTiltVelocity = filteredVerticalTiltVelocity + (rawVelocity - filteredVerticalTiltVelocity) * phaseVelocitySmoothing
+        } else {
+            filteredVerticalTiltVelocity = 0.0
+        }
+        verticalTiltVelocity = filteredVerticalTiltVelocity
+        self.lastFilteredVerticalTilt = filteredVerticalTilt
+    }
+
     private func checkStillness(userAcceleration: CMAcceleration) {
         let magnitude = sqrt(
             userAcceleration.x * userAcceleration.x +
@@ -357,6 +390,7 @@ class MotionManager: ObservableObject {
         motionManager.startAccelerometerUpdates(to: .main) { [weak self] data, _ in
             guard let self = self, let data = data else { return }
             self.updatePosition(withTilt: data.acceleration.x)
+            self.updateVerticalTilt(withRaw: 0.0)
             self.checkStillness(userAcceleration: CMAcceleration(
                 x: data.acceleration.x,
                 y: data.acceleration.y,
@@ -381,7 +415,9 @@ class MotionManager: ObservableObject {
             }
             
             self.updatePosition(withTilt: mockTilt)
-            
+            let mockVTilt = sin(self.mockTime * 0.3 * 2 * .pi) * 0.15
+            self.updateVerticalTilt(withRaw: mockVTilt)
+
             let motionMagnitude = abs(cos(self.mockTime * waveSpeed * 2 * .pi)) * 0.03
             let mockUserAcceleration = CMAcceleration(
                 x: stillnessCycle > 6.0 ? 0.0 : motionMagnitude,
